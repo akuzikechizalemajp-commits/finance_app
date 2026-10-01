@@ -47,4 +47,6 @@ urlpatterns = [
     path("expenses/<int:expense_id>/delete/", views.delete_expense, name="delete_expense"),
 
     path("tax-calculator/", views.tax_calculator, name="tax_calculator"),
+
+    path("budgets/add/", views.add_budget, name="add_budget"),
 ]

@@ -587,4 +587,20 @@ def tax_calculator(request):
     )
 
 
+@login_required
+def add_budget(request):
+    if request.method == "POST":
+        category = request.POST.get("category")
+        amount = request.POST.get("amount")
+        month = request.POST.get("month")
 
+        if category and amount and month:
+            Budget.objects.create(
+                user=request.user,
+                category=category,
+                amount=amount,
+                month=month,
+            )
+            return redirect("dashboard")
+
+    return render(request, "budgeting/add_budget.html")
