@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Akus Finance Dashboard</title>
+
+
+
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 40px;
+            background-color: #f4f6f8;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        .period {
+            margin-bottom: 30px;
+            color: #555;
+        }
+
+        .summary {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 10px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            flex: 1;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: #555;
+        }
+
+        .amount {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .all-time {
+            border-top: 4px solid #333;
+        }
+
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1fr;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .category-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .header {
+            font-weight: bold;
+        }
+
+        .under {
+            color: green;
+            font-weight: bold;
+        }
+
+        .over {
+            color: red;
+            font-weight: bold;
+        }
+
+        select {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 15px;
+        }
+
+        .subtitle {
+            color: #777;
+            margin-top: -5px;
+        }
+
+        @media (max-width: 700px) {
+
+            body {
+                padding: 20px;
+            }
+
+            .summary {
+                flex-direction: column;
+            }
+
+            .row {
+                grid-template-columns: 1.2fr 1fr 1fr 1fr;
+                font-size: 14px;
+            }
+
+        }
+
+
+                /* ============================= */
+        /* TRANSACTIONS TABLE */
+        /* ============================= */
+
+        .transaction-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .transaction-table th {
+            text-align: left;
+            padding: 14px 16px;
+            background-color: #f4f6f8;
+            color: #555;
+            font-size: 14px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .transaction-table td {
+            padding: 16px;
+            border-bottom: 1px solid #eee;
+            font-size: 15px;
+        }
+
+        .transaction-table tr:hover {
+            background-color: #fafafa;
+        }
+
+        .income-type {
+            color: green;
+            font-weight: bold;
+        }
+
+        .expense-type {
+            color: red;
+            font-weight: bold;
+        }
+
+        .transaction-amount {
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .transaction-table th:last-child {
+            text-align: right;
+        }
+
+
+        /* Button Block */
+
+                .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            margin-right: 10px;
+            background-color: #333;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 15px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #555;
+        }
+
+
+
+        /* Button styling for edit */
+        
+        
+        .action-btn {
+            display: inline-block;
+            padding: 6px 10px;
+            margin-right: 5px;
+            background-color: #333;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        .action-btn:hover {
+            background-color: #555;
+        }
+        
+        .delete-btn {
+            background-color: #999;
+        }
+        
+        .delete-btn:hover {
+            background-color: #777;
+        }
+
+
+
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <h1>My Finance Dashboard</h1>
+
+
+    <!-- MONTH SELECTOR -->
+
+    <form method="get">
+
+        <label for="month">
+            Select month:
+        </label>
+
+        <select
+            name="month"
+            id="month"
+            onchange="this.form.submit()"
+        >
+
+            {% for month in month_choices %}
+
+                <option
+                    value="{{ month.value }}"
+                    {% if month.value == selected_month_value %}
+                        selected
+                    {% endif %}
+                >
+                    {{ month.label }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+    </form>
+
+
+    <p class="period">
+
+        Viewing:
+        <strong>{{ selected_month|date:"F Y" }}</strong>
+
+    </p>
+
+
+    <!-- ============================= -->
+    <!-- SELECTED MONTH -->
+    <!-- ============================= -->
+
+    <div class="section">
+
+        <h2>{{ selected_month|date:"F Y" }}</h2>
+
+        <p class="subtitle">
+            Financial activity for this month
+        </p>
+
+
+        <div class="summary">
+
+
+            <div class="card">
+
+                <h3>Monthly Income</h3>
+
+                <div class="amount">
+                    ¥{{ monthly_income }}
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <h3>Monthly Expenses</h3>
+
+                <div class="amount">
+                    ¥{{ monthly_expenses }}
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <h3>Monthly Remaining</h3>
+
+                <div class="amount">
+                    ¥{{ monthly_remaining }}
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+     <div>
+        <a href="{% url 'add_income' %}" class="btn">+ Add Income</a>
+        <a href="{% url 'add_expense' %}" class="btn">+ Add Expense</a>
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- ALL TIME TOTALS -->
+    <!-- ============================= -->
+
+    <div class="section">
+
+        <h2>All-Time Totals</h2>
+
+        <p class="subtitle">
+            Everything recorded in the system
+        </p>
+
+
+        <div class="summary">
+
+
+            <div class="card all-time">
+
+                <h3>Total Income Ever</h3>
+
+                <div class="amount">
+                    ¥{{ all_time_income }}
+                </div>
+
+            </div>
+
+
+            <div class="card all-time">
+
+                <h3>Total Expenses Ever</h3>
+
+                <div class="amount">
+                    ¥{{ all_time_expenses }}
+                </div>
+
+            </div>
+
+
+            <div class="card all-time">
+
+                <h3>Total Remaining</h3>
+
+                <div class="amount">
+                    ¥{{ all_time_remaining }}
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- BUDGET VS ACTUAL -->
+    <!-- ============================= -->
+
+    <div class="section">
+
+        <h2>Budget vs Actual Spending</h2>
+
+
+        <div class="row header">
+
+            <div>Category</div>
+            <div>Budget</div>
+            <div>Spent</div>
+            <div>Remaining</div>
+
+        </div>
+
+
+        {% for item in budget_comparison %}
+
+        <div class="row">
+
+            <div>
+                {{ item.category }}
+            </div>
+
+            <div>
+                ¥{{ item.budget }}
+            </div>
+
+            <div>
+                ¥{{ item.spent }}
+            </div>
+
+            <div>
+
+                {% if item.remaining >= 0 %}
+
+                    <span class="under">
+                        ¥{{ item.remaining }}
+                    </span>
+
+                {% else %}
+
+                    <span class="over">
+                        ¥{{ item.remaining }}
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        {% empty %}
+
+        <p>No budgets have been created yet.</p>
+
+        {% endfor %}
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- EXPENSES BY CATEGORY -->
+    <!-- ============================= -->
+
+    <div class="section">
+
+        <h2>Expenses by Category</h2>
+
+
+        {% for expense in expenses_by_category %}
+
+            <div class="category-row">
+
+                <div>
+                    {{ expense.category }}
+                </div>
+
+                <div>
+                    ¥{{ expense.total }}
+                </div>
+
+            </div>
+
+        {% empty %}
+
+            <p>No expenses recorded yet.</p>
+
+        {% endfor %}
+
+
+    </div>
+
+<!-- ============================= -->
+<!-- RECENT TRANSACTIONS -->
+<!-- ============================= -->
+
+<div class="section">
+
+    <h2>Recent Transactions</h2>
+
+    <p class="subtitle">
+        Your 10 most recent income and expenses
+    </p>
+
+    <table class="transaction-table">
+
+        <thead>
+
+            <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Actions</th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for transaction in transactions %}
+
+            <tr>
+
+                <td>
+                    {{ transaction.date|date:"d M Y" }}
+                </td>
+
+                <td>
+
+                    {% if transaction.type == "Income" %}
+
+                        <span class="income-type">
+                            Income
+                        </span>
+
+                    {% else %}
+
+                        <span class="expense-type">
+                            Expense
+                        </span>
+
+                    {% endif %}
+
+                </td>
+
+                <td>
+                    {{ transaction.category }}
+                </td>
+
+
+    <td class="transaction-amount">
+        {% if transaction.type == "Income" %}
+        
+        +¥{{ transaction.amount }}
+        
+        {% else %}
+        
+        -¥{{ transaction.amount }}
+        {% endif %}
+    
+    </td>
+    
+    <td>
+        
+        {% if transaction.type == "Income" %}
+        
+        <a href="{% url 'edit_income' transaction.id %}" class="action-btn">
+            
+            Edit
+        </a>
+        
+        <a href="{% url 'delete_income' transaction.id %}" class="action-btn delete-btn">
+            Delete
+        
+        </a>
+        
+        {% else %}
+        
+        <a href="{% url 'edit_expense' transaction.id %}" class="action-btn">
+            Edit
+        
+        </a>
+        
+        <a href="{% url 'delete_expense' transaction.id %}" class="action-btn delete-btn">
+            Delete
+        </a>
+
+    {% endif %}
+
+</td>
+
+
+            </tr>
+
+            {% empty %}
+
+            <tr>
+                <td colspan="5">
+                    No transactions recorded yet.
+                </td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+</div>
+
+</body>
+
+</html>
+
+

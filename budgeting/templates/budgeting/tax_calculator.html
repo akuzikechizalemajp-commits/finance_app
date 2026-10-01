@@ -1,0 +1,200 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Japan Tax Calculator</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 40px;
+            background-color: #f4f6f8;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+        }
+
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        .subtitle {
+            color: #777;
+        }
+
+        label {
+            display: block;
+            margin-top: 20px;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            margin-top: 25px;
+            padding: 12px 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f4f6f8;
+            border-radius: 8px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .back {
+            display: inline-block;
+            margin-top: 20px;
+            color: #333;
+            text-decoration: none;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="section">
+
+        <h1>🇯🇵 Japan Tax Calculator</h1>
+
+        <p class="subtitle">
+            Estimate your Japanese taxes based on your income and deductions.
+        </p>
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            <label for="annual_income">
+                Annual Income (¥)
+            </label>
+
+            <input
+                type="number"
+                id="annual_income"
+                name="income"
+                min="0"
+                step="1"
+                placeholder="e.g. 3000000"
+                required
+            >
+
+            <label for="social_insurance">
+                Social Insurance Contributions (¥)
+            </label>
+
+            <input
+                type="number"
+                id="social_insurance"
+                name="social_insurance"
+                min="0"
+                step="1"
+                value="0"
+            >
+
+            <label for="other_deductions">
+                Other Deductions (¥)
+            </label>
+
+            <input
+                type="number"
+                id="other_deductions"
+                name="other_deductions"
+                min="0"
+                step="1"
+                value="0"
+            >
+
+            <button type="submit">
+                Calculate Tax
+            </button>
+
+        </form>
+
+  {% if total_tax is not None %}
+
+<div class="result">
+
+    <h2>Tax Estimate</h2>
+
+    <div class="result-row">
+        <span>Taxable Income</span>
+        <strong>¥{{ taxable_income|floatformat:0 }}</strong>
+    </div>
+
+    <div class="result-row">
+        <span>National Income Tax</span>
+        <strong>¥{{ tax|floatformat:0 }}</strong>
+    </div>
+
+    <div class="result-row">
+        <span>Reconstruction Special Income Tax</span>
+        <strong>¥{{ reconstruction_tax|floatformat:0 }}</strong>
+    </div>
+
+    <div class="result-row">
+        <span><strong>Total National Tax</strong></span>
+        <strong>¥{{ total_tax|floatformat:0 }}</strong>
+    </div>
+
+</div>
+
+{% endif %}
+
+        <a href="{% url 'dashboard' %}" class="back">
+            ← Back to Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>
